@@ -2,8 +2,9 @@ const theaterService = require("./theaters-services");
 const asyncErrorBoundary = require("../../error/asyncErrorBoundary");
 
 async function list(req, res, next) {
-  const data = await theaterService.list();
+  const data = await theaterService.list(); //gets list of all theaters and movies
   const organized = data.reduce((acc, cur) => {
+    //reduce all movies to there respective theaters
     if (cur.theater_id in acc) {
       acc[cur.theater_id].movies.push({
         movie_id: cur.movie_id,
@@ -46,7 +47,7 @@ async function list(req, res, next) {
     }
     return acc;
   }, {});
-  res.json({ data: Object.values(organized) });
+  res.json({ data: Object.values(organized) }); //sending valuse to client
 }
 
 module.exports = { list: asyncErrorBoundary(list) };

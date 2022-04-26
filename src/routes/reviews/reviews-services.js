@@ -1,35 +1,26 @@
 const knex = require("../../db/connection");
 
-function list() {
-  return knex("reviews").select("*");
-}
-
 function destroy(reviewId) {
+  //deletes review by id
   return knex("reviews").where({ review_id: reviewId }).del();
 }
 
 function update(reviewId, body) {
-  return knex("reviews")
-    .where({ review_id: reviewId })
-    .update(body)
-    .then((item) => item[0]);
+  return knex("reviews") //from reviews
+    .where({ review_id: reviewId }) // filter by id
+    .update(body) //update the body
+    .then((item) => item[0]); //return first item
 }
 
-function listUpdatedReview(reviewId) {
-  return (
-    knex("reviews")
-      .select("*")
-      // .join("critics", "critics.critic_id", "reviews.critic_id")
-      .where({ review_id: reviewId })
-      .then((item) => item[0])
-  );
+function readByTable(table, idObj) {
+  return knex(table) //get from table
+    .select("*") //get all col
+    .where(idObj) //filter id object
+    .then((item) => item[0]); //return first item
 }
 
-function readCriticInfo(criticId) {
-  return knex("critics")
-    .select("*")
-    .where({ critic_id: criticId })
-    .then((item) => item[0]);
-}
-
-module.exports = { destroy, list, update, readCriticInfo, listUpdatedReview };
+module.exports = {
+  destroy,
+  update,
+  readByTable,
+};

@@ -2,43 +2,47 @@ const movieService = require("./movies-services");
 const asyncErrorBoundary = require("../../error/asyncErrorBoundary");
 const knex = require("../../db/connection");
 
-//main functions
-
 async function list(req, res, next) {
+  //getting query from request
   const query = req.query;
-  let data;
+  let data; //seting empty vairable to fill
   if (Object.keys(query).length === 0) {
-    data = await movieService.list();
+    //checking if query is passed in
+    data = await movieService.list(); // getting all movies
   } else {
-    data = await movieService.filteredList(query);
+    data = await movieService.filteredList(query.is_showing); // geting list filtered by query
   }
-  res.json({ data });
+  res.json({ data }); //send data back to client
 }
 
 async function read(req, res, next) {
-  const { movieId } = req.params;
-  const movie = await movieService.read(movieId);
-  if (Object.keys(movie).length === 0) {
-    return next({ status: 404, message: `${movieId} is not a valid movie id` });
+  const { movieId } = req.params; //geting id param from req
+  const movie = await movieService.read(movieId); //geting movie object from service
+  if (!movie) {
+    //checking if object is empty
+    return next({ status: 404, message: `${movieId} is not a valid movie id` }); //sending not found
   }
-  res.json({ data: movie[0] });
+  res.json({ data: movie }); //sending data to client
 }
 
 async function theatersShowingMovie(req, res, next) {
-  const { movieId } = req.params;
-  const data = await movieService.theatersShowingMovie(movieId);
+  const { movieId } = req.params; //getting movie id
+  const data = await movieService.theatersShowingMovie(movieId); // getting all theaters that show the specfic movie
   if (Object.keys(data).length === 0) {
-    return next({ status: 404, message: `${movieId} is not a valid movie id` });
+    // checking if onbject is empty
+    return next({ status: 404, message: `${movieId} is not a valid movie id` }); //return not found
   }
-  res.json({ data });
+  res.json({ data }); //sending data
 }
 
 async function criticDataByMovie(req, res, next) {
-  const { movieId } = req.params;
-  const data = await movieService.criticDataByMovie(movieId);
+  const { movieId } = req.params; // getting movie id
+  const data = await movieService.criticDataByMovie(movieId); //geting critic data by movie id
   if (Object.keys(data).length === 0) {
-    return next({ status: 404, message: `${movieId} is not a valid movie id` });
+    //checking if object is empty
+    return next({ status: 404, message: `${movieId} is not a valid movie id` }); //sending not found
   }
+  //remaping data to requested specs
   const cleanedData = data.map((item) => ({
     review_id: item.review_id,
     content: item.content,
@@ -56,7 +60,7 @@ async function criticDataByMovie(req, res, next) {
       updated_at: item.c_updated,
     },
   }));
-  res.json({ data: cleanedData });
+  res.json({ data: cleanedData }); // sending data to client
 }
 
 module.exports = {

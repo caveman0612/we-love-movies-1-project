@@ -1,42 +1,42 @@
 const asyncErrorBoundary = require("../../error/asyncErrorBoundary");
 const dbServies = require("./reviews-services");
 
-async function list(req, res, next) {
-  const data = await dbServies.list();
-  res.json({ data });
-}
-
 async function destroy(req, res, next) {
-  const { reviewId } = req.params;
-  const data = await dbServies.destroy(reviewId);
+  const { reviewId } = req.params; //gets review id
+  const data = await dbServies.destroy(reviewId); //deletes review
   if (data == 0) {
-    return next({ status: 404, message: "Review cannot be found." });
+    //gets if review id is valid
+    return next({ status: 404, message: "Review cannot be found." }); //sends 404 error
   }
-  res.sendStatus(204);
+  res.sendStatus(204); //send success error
 }
 
 async function update(req, res, next) {
-  const { reviewId } = req.params;
-  const { data = {} } = req.body;
+  const { reviewId } = req.params; //gets review id
+  const { data = {} } = req.body; //get body from req
   if (!data.content) {
-    next({ status: 404, message: "cannot be found" });
+    //checks if content is empty
+    next({ status: 404, message: "body cannot be found" }); //send error if no body is passed
   }
 
-  await dbServies.update(reviewId, data);
+  await dbServies.update(reviewId, data); //updates body to id
 
-  const critics = await dbServies.listUpdatedReview(reviewId);
-  if (!critics) {
-    return next({ status: 404, message: "Review cannot be found" });
+  const updatedReview = await dbServies.readByTable("reviews", {
+    review_id: reviewId,
+  }); // gets updated review
+  if (!updatedReview) {
+    //checks if updated review is valid
+    return next({ status: 404, message: "Review cannot be found" }); //sends not found error
   }
 
-  const criticInfo = await dbServies.readCriticInfo(critics.critic_id);
-  const newData = { ...critics };
-  newData["critic"] = criticInfo;
-  res.json({ data: newData });
+  const criticInfo = await dbServies.readByTable("critics", {
+    critic_id: updatedReview.critic_id,
+  }); //gets critic info for review
+  updatedReview["critic"] = criticInfo; //combines critic info with review
+  res.json({ data: updatedReview }); //sends data to client
 }
 
 module.exports = {
   destroy: asyncErrorBoundary(destroy),
   update: asyncErrorBoundary(update),
-  list,
 };
