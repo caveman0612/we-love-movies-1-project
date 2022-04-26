@@ -2,9 +2,8 @@ const path = require("path");
 
 require("dotenv").config();
 
-const {
-  DATABASE_URL = "postgresql://postgres@localhost/postgres",
-} = process.env;
+const { DATABASE_URL = "postgresql://postgres@localhost/postgres" } =
+  process.env;
 
 module.exports = {
   development: {
@@ -31,17 +30,17 @@ module.exports = {
     },
   },
 
-  test: {
-    client: "sqlite3",
-    connection: {
-      filename: ":memory:",
-    },
-    migrations: {
-      directory: path.join(__dirname, "src", "db", "migrations"),
-    },
-    seeds: {
-      directory: path.join(__dirname, "src", "db", "seeds"),
-    },
-    useNullAsDefault: true,
-  },
+  // test: {
+  //   client: "sqlite3",
+  //   connection: {
+  //     filename: ":memory:",
+  //   },
+  //   migrations: {
+  //     directory: path.join(__dirname, "src", "db", "migrations"),
+  //   },
+  //   seeds: {
+  //     directory: path.join(__dirname, "src", "db", "seeds"),
+  //   },
+  //   useNullAsDefault: true,
+  // },
 };
